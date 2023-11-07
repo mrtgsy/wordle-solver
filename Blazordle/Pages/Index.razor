@@ -1,3 +1,28 @@
 ﻿@page "/"
 
-<h1>Hello, world!</h1>
+@code
+{
+
+  readonly string[] _possibleWords = File.ReadAllLines("wordlist.txt");
+  
+  
+
+
+}
+
+<h1>Blazordle - a Wordle solver</h1>
+
+<p>There are @_possibleWords.Length words in the list.</p>
+<p>To start, enter a 5-letter guess and its hints.</p>
+
+<div class="wordle-board">
+  <!-- Each .wordle-row represents a row for guesses -->
+  
+  <WordleGuess></WordleGuess>
+  <WordleGuess></WordleGuess>
+  <WordleGuess></WordleGuess>
+  <WordleGuess></WordleGuess>
+  <WordleGuess></WordleGuess>
+  <WordleGuess></WordleGuess>
+  
+</div>
