@@ -10,6 +10,43 @@
 
 }
 
+<style>
+
+*:focus {
+    outline: none;
+}
+
+  .wordle-board {
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    /*margin: auto;*/
+    padding: 20px;
+  }
+  .wordle-row {
+    display: flex;
+    margin-bottom: 5px;
+  }
+  .wordle-row:last-child {
+    margin-bottom: 0;
+  }
+  .wordle-box {
+    width: 58px; /* size of the box */
+    height: 58px; /* size of the box */
+    margin-right: 6px; /* spacing between boxes */
+    font-size: 32px; /* size of the text */
+    border: 2px solid #d3d6da;
+    text-transform: uppercase; /* make all letters uppercase */
+    text-align: center;
+    line-height: 58px;
+    box-sizing: border-box;
+    cursor: grab;
+  }
+  .wordle-box:last-child {
+    margin-right: 0;
+  }
+</style>
+
 <h1>Blazordle - a Wordle solver</h1>
 
 <p>There are @_possibleWords.Length words in the list.</p>
