@@ -1,17 +1,81 @@
 @code {
 
-
-    private void GuessLetterClicked()
+    enum LetterState
     {
-        
+        None,
+        Right,
+        RightWrong
     }
     
+    private LetterState letter1State = LetterState.None;
+    private LetterState letter2State = LetterState.None;
+    private LetterState letter3State = LetterState.None;
+    private LetterState letter4State = LetterState.None;
+    private LetterState letter5State = LetterState.None;
+
+    private string letter1Value = "";
+    private string letter2Value = "";
+    private string letter3Value = "";
+    private string letter4Value = "";
+    private string letter5Value = "";
+    
+    // public List<char>
+
+    private void LetterClicked(int which)
+    {
+        switch (which)
+        {
+            case 1:
+                letter1State = SetState(letter1State);
+                break;
+            case 2:
+                letter2State = SetState(letter2State);
+                break;
+            case 3:
+                letter3State = SetState(letter3State);
+                break;
+            case 4:
+                letter4State = SetState(letter4State);
+                break;
+            case 5:
+                letter5State = SetState(letter5State);
+                break;
+        }
+    }
+
+    private LetterState SetState(LetterState currentState)
+    {
+        return currentState switch
+        {
+            LetterState.None => LetterState.Right,
+            LetterState.Right => LetterState.RightWrong,
+            _ => LetterState.None
+            };
+    }
+
+        private const string InputNoneStyle = "color: black;";
+        private const string InputCorrectStyle = "background-color: green; color: white;";
+        private const string InputRightLetterWrongPlaceStyle = "background-color: none; border: 1px solid red; color; black;";
+
+    
+
+    private static string GetStyleForState(LetterState letterState)
+    {
+        return letterState switch
+        {
+            LetterState.Right => InputCorrectStyle,
+            LetterState.RightWrong => InputRightLetterWrongPlaceStyle,
+            _ => InputNoneStyle
+            };
+    }
+
 }
 
+
 <div class="wordle-row">
-    <input type="text" maxlength="1" class="wordle-box" name="letter1" @onclick="GuessLetterClicked">
-    <input type="text" maxlength="1" class="wordle-box" name="letter2">
-    <input type="text" maxlength="1" class="wordle-box" name="letter3">
-    <input type="text" maxlength="1" class="wordle-box" name="letter4">
-    <input type="text" maxlength="1" class="wordle-box" name="letter5">
+    <input type="text" maxlength="1" class="wordle-box" name="letter1" @onchange="() => LetterChanged(1)" @onclick="() => LetterClicked(1)" style="@GetStyleForState(letter1State)">
+    <input type="text" maxlength="1" class="wordle-box" name="letter2" @onclick="() => LetterClicked(2)" style="@GetStyleForState(letter2State)">
+    <input type="text" maxlength="1" class="wordle-box" name="letter3" @onclick="() => LetterClicked(3)" style="@GetStyleForState(letter3State)">
+    <input type="text" maxlength="1" class="wordle-box" name="letter4" @onclick="() => LetterClicked(4)" style="@GetStyleForState(letter4State)">
+    <input type="text" maxlength="1" class="wordle-box" name="letter5" @onclick="() => LetterClicked(5)" style="@GetStyleForState(letter5State)">
 </div>
