@@ -73,7 +73,7 @@
 
 
 <div class="wordle-row">
-    <input type="text" maxlength="1" class="wordle-box" name="letter1" @onchange="() => LetterChanged(1)" @onclick="() => LetterClicked(1)" style="@GetStyleForState(letter1State)">
+    <input type="text" maxlength="1" class="wordle-box" name="letter1" @onclick="() => LetterClicked(1)" style="@GetStyleForState(letter1State)">
     <input type="text" maxlength="1" class="wordle-box" name="letter2" @onclick="() => LetterClicked(2)" style="@GetStyleForState(letter2State)">
     <input type="text" maxlength="1" class="wordle-box" name="letter3" @onclick="() => LetterClicked(3)" style="@GetStyleForState(letter3State)">
     <input type="text" maxlength="1" class="wordle-box" name="letter4" @onclick="() => LetterClicked(4)" style="@GetStyleForState(letter4State)">
