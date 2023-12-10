@@ -1,3 +1,4 @@
+@using Microsoft.AspNetCore.Components.Forms
 @code {
 
     enum LetterState
@@ -13,6 +14,12 @@
     private LetterState letter4State = LetterState.None;
     private LetterState letter5State = LetterState.None;
 
+    private InputText letter1;
+    private InputText letter2;
+    private InputText letter3;
+    private InputText letter4;
+    private InputText letter5;
+    
     private string letter1Value = "";
     private string letter2Value = "";
     private string letter3Value = "";
@@ -20,6 +27,31 @@
     private string letter5Value = "";
     
     // public List<char>
+
+    public string letters = "";
+    private void LetterEntered(string value, int which)
+    {
+        letters += value;
+
+        switch (which)
+        {
+            case 1: 
+                letter2.Element.Value.FocusAsync();
+                break;
+            case 2: 
+                letter3.Element.Value.FocusAsync();
+                break;
+            case 3: 
+                letter4.Element.Value.FocusAsync();
+                break;
+            case 4: 
+                letter5.Element.Value.FocusAsync();
+                break;
+            case 5:
+                break;
+
+        }
+    }
 
     private void LetterClicked(int which)
     {
@@ -71,11 +103,10 @@
 
 }
 
-
 <div class="wordle-row">
-    <input type="text" maxlength="1" class="wordle-box" name="letter1" @onclick="() => LetterClicked(1)" style="@GetStyleForState(letter1State)">
-    <input type="text" maxlength="1" class="wordle-box" name="letter2" @onclick="() => LetterClicked(2)" style="@GetStyleForState(letter2State)">
-    <input type="text" maxlength="1" class="wordle-box" name="letter3" @onclick="() => LetterClicked(3)" style="@GetStyleForState(letter3State)">
-    <input type="text" maxlength="1" class="wordle-box" name="letter4" @onclick="() => LetterClicked(4)" style="@GetStyleForState(letter4State)">
-    <input type="text" maxlength="1" class="wordle-box" name="letter5" @onclick="() => LetterClicked(5)" style="@GetStyleForState(letter5State)">
+    <InputText maxlength="1" class="wordle-box" @ref="letter1" name="letter1" @bind-Value="letter1Value" @oninput="(args)=>LetterEntered(args.Value.ToString(), 1)" @onclick="() => LetterClicked(1)" style="@GetStyleForState(letter1State)" />
+    <InputText maxlength="1" class="wordle-box" @ref="letter2" name="letter2" @bind-Value="letter2Value" @oninput="(args)=>LetterEntered(args.Value.ToString(), 2)" @onclick="() => LetterClicked(2)" style="@GetStyleForState(letter2State)" />
+    <InputText maxlength="1" class="wordle-box" @ref="letter3" name="letter3" @bind-Value="letter3Value" @oninput="(args)=>LetterEntered(args.Value.ToString(), 3)" @onclick="() => LetterClicked(3)" style="@GetStyleForState(letter3State)" />
+    <InputText maxlength="1" class="wordle-box" @ref="letter4" name="letter4" @bind-Value="letter4Value" @oninput="(args)=>LetterEntered(args.Value.ToString(), 4)" @onclick="() => LetterClicked(4)" style="@GetStyleForState(letter4State)" />
+    <InputText maxlength="1" class="wordle-box" @ref="letter5" name="letter5" @bind-Value="letter5Value" @oninput="(args)=>LetterEntered(args.Value.ToString(), 5)" @onclick="() => LetterClicked(5)" style="@GetStyleForState(letter5State)" />
 </div>

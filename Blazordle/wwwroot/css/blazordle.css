@@ -1,8 +1,21 @@
+
+*:focus {
+    outline: none;
+}
+
+.word-list {
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    /*margin: auto;*/
+    padding: 20px;
+}
+
 .wordle-board {
     display: flex;
     flex-direction: column;
     width: fit-content;
-    margin: auto;
+    /*margin: auto;*/
     padding: 20px;
 }
 .wordle-row {
