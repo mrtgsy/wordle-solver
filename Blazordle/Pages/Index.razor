@@ -1,22 +1,48 @@
 ﻿@page "/"
+@inject GuessService _guessService;
+@implements IDisposable;
 
 @code
 {
     readonly string[] _possibleWords = File.ReadAllLines("wordlist.txt");
+    IEnumerable<string> _filteredWords;
 
     int guessLines = 1;
 
     private void AddDelGuess(int num)
     {
         guessLines += num;
+    }
+    
+    protected override void OnInitialized()
+    {
+        _filteredWords = _possibleWords.Take(20);
+        _guessService.OnChange += FilterWordList;
+    }
+
+    public void Dispose()
+    {
+        _guessService.OnChange -= FilterWordList;
+    }
+
+    public void FilterWordList()
+    {
+        
         StateHasChanged();
     }
+
 }
 
 <h1>Blazordle - a Wordle solver</h1>
 
 <p>There are @_possibleWords.Length words in the list.</p>
 <p>To start, enter a 5-letter guess and its hints.</p>
+
+<p>@foreach (var guess in _guessService.guesses)
+   {
+       @guess
+   }
+    </p>
 
 <div class="container">
     <div class="wordle-board">
@@ -33,7 +59,7 @@
 
     <div class="word-list">
         <ol>
-            @foreach (var word in _possibleWords.Take(100))
+            @foreach (var word in _filteredWords)
             {
                 <li>@word</li>
             }
