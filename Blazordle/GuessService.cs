@@ -2,7 +2,6 @@ namespace Blazordle;
 
 public class LetterGuess
 {
-
     public LetterGuess(int pos, string val, GuessService.LetterState letterState)
     {
         position = pos;
@@ -10,9 +9,9 @@ public class LetterGuess
         state = letterState;
     }
 
-    public int position;
-    public string value;
-    private GuessService.LetterState state;
+    public int position { get; }
+    public string value { get; }
+    public GuessService.LetterState state { get; }
 
     public override string ToString()
     {
@@ -30,15 +29,39 @@ public class GuessService
         Wrong
     }
 
-    public List<LetterGuess> guesses = new();
+    public List<LetterGuess> guesses = [];
+
+    public bool HasPerfectMatch
+    {
+        get
+        {
+            return guesses.Any(x => x.state == LetterState.Right);
+        }
+    }
+    
+    public bool HasWronguns
+    {
+        get
+        {
+            return guesses.Any(x => x.state == LetterState.Wrong);
+        }
+    }
+    
+    public bool HasImperfections
+    {
+        get
+        {
+            return guesses.Any(x => x.state == LetterState.RightWrong);
+        }
+    }
 
     public event Action? OnChange;
 
     public void AddUpdateGuess(int pos, string val, LetterState letterState)
     {
-        if (guesses.Any(x => x.value == val))
+        if (guesses.Any(x => x.value == val && x.position == pos))
         {
-            guesses.Remove(guesses.First(x => x.value == val));
+            guesses.Remove(guesses.First(x => x.value == val && x.position == pos));
         }
 
         if (letterState != LetterState.None)

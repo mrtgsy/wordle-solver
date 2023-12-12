@@ -1,22 +1,29 @@
 ﻿@page "/"
 @inject GuessService _guessService;
+
 @implements IDisposable;
 
 @code
 {
     readonly string[] _possibleWords = File.ReadAllLines("wordlist.txt");
-    IEnumerable<string> _filteredWords;
+    List<string> _filteredWords;
 
     int guessLines = 1;
+
+    private void Reset()
+    {
+        guessLines = 1;
+        _filteredWords = _possibleWords.ToList();
+    }
 
     private void AddDelGuess(int num)
     {
         guessLines += num;
     }
-    
+
     protected override void OnInitialized()
     {
-        _filteredWords = _possibleWords.Take(20);
+        _filteredWords = _possibleWords.Take(20).ToList();
         _guessService.OnChange += FilterWordList;
     }
 
@@ -27,22 +34,59 @@
 
     public void FilterWordList()
     {
-        
+        _filteredWords = new List<string>();
+
+        // check those that have known positions and then later filter those
+        if (_guessService.HasPerfectMatch)
+        {
+            // Use predicate inside Where to avoid repetitive checking
+            _filteredWords = _possibleWords.Where(word =>
+            {
+                return _guessService.guesses
+                    .Where(x => x.state == GuessService.LetterState.Right)
+                    .All(guess => HasCharAtMatchingPosition(word, guess.value, guess.position));
+            }).ToList();
+        }
+        else 
+        {
+            _filteredWords = _possibleWords.ToList();
+        }
+
+        // now filter out the noise
+        if (_guessService.HasWronguns)
+        {
+            _filteredWords.RemoveAll(word =>
+            {
+                return _guessService.guesses
+                    .Where(x => x.state == GuessService.LetterState.Wrong)
+                    .Select(x => x.value)
+                    .Any(wrong => word.Contains(wrong));
+            });
+        }
+
+        if (_guessService.HasImperfections)
+        {
+            _filteredWords.RemoveAll(word => 
+            {
+                return _guessService.guesses
+                    .Where(x => x.state == GuessService.LetterState.RightWrong)
+                    .Any(other => !word.Contains(other.value) || HasCharAtMatchingPosition(word, other.value, other.position));
+            });
+        }
+
         StateHasChanged();
     }
 
+    private bool HasCharAtMatchingPosition(string word, string val, int pos)
+    {
+        return word[pos - 1] == val.ToCharArray()[0];
+    }
 }
 
 <h1>Blazordle - a Wordle solver</h1>
 
 <p>There are @_possibleWords.Length words in the list.</p>
 <p>To start, enter a 5-letter guess and its hints.</p>
-
-<p>@foreach (var guess in _guessService.guesses)
-   {
-       @guess
-   }
-    </p>
 
 <div class="container">
     <div class="wordle-board">
@@ -54,6 +98,7 @@
         }
         <button @onclick="() => AddDelGuess(1)">Add</button>
         <button @onclick="() => AddDelGuess(-1)">Del</button>
+        <button @onclick="() => Reset()">Reset</button>
 
     </div>
 
