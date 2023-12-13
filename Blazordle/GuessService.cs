@@ -1,41 +1,15 @@
 namespace Blazordle;
 
-public class LetterGuess
-{
-    public LetterGuess(int pos, string val, GuessService.LetterState letterState)
-    {
-        position = pos;
-        value = val;
-        state = letterState;
-    }
-
-    public int position { get; }
-    public string value { get; }
-    public GuessService.LetterState state { get; }
-
-    public override string ToString()
-    {
-        return $"{value}:{position}:{state}";
-    }
-}
-
 public class GuessService
 {
-    public enum LetterState
-    {
-        None,
-        Right,
-        RightWrong,
-        Wrong
-    }
-
-    public List<LetterGuess> guesses = [];
+   
+    public List<Letter> Guesses = [];
 
     public bool HasPerfectMatch
     {
         get
         {
-            return guesses.Any(x => x.state == LetterState.Right);
+            return Guesses.Any(x => x.State == Letter.LetterState.Right);
         }
     }
     
@@ -43,7 +17,7 @@ public class GuessService
     {
         get
         {
-            return guesses.Any(x => x.state == LetterState.Wrong);
+            return Guesses.Any(x => x.State == Letter.LetterState.Wrong);
         }
     }
     
@@ -51,25 +25,41 @@ public class GuessService
     {
         get
         {
-            return guesses.Any(x => x.state == LetterState.RightWrong);
+            return Guesses.Any(x => x.State == Letter.LetterState.RightWrong);
         }
     }
 
     public event Action? OnChange;
 
-    public void AddUpdateGuess(int pos, string val, LetterState letterState)
+    public void AddUpdateGuess(Letter letter)
     {
-        if (guesses.Any(x => x.value == val && x.position == pos))
+        if (Guesses.Any(x => x.Value == letter.Value && x.Position == letter.Position))
         {
-            guesses.Remove(guesses.First(x => x.value == val && x.position == pos));
+            Guesses.Remove(Guesses.First(x => x.Value == letter.Value && x.Position == letter.Position));
         }
 
-        if (letterState != LetterState.None)
+        if (letter.State != Letter.LetterState.None)
         {
-            guesses.Add(new LetterGuess(pos, val, letterState));
+            Guesses.Add(letter);
         }
         NotifyStateChanged();
     }
     
     private void NotifyStateChanged() => OnChange?.Invoke();
+}
+
+public static class Extensions
+{
+    private static Random rng = new Random();
+
+    public static void Shuffle<T>(this IList<T> list)
+    {
+        var n = list.Count;
+        while (n > 1)
+        {
+            n--;
+            var k = rng.Next(n + 1);
+            (list[k], list[n]) = (list[n], list[k]);
+        }
+    }
 }

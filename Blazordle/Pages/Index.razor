@@ -1,12 +1,12 @@
 ﻿@page "/"
-@inject GuessService _guessService;
+@inject GuessService GuessService;
 
 @implements IDisposable;
 
 @code
 {
     readonly string[] _possibleWords = File.ReadAllLines("wordlist.txt");
-    List<string> _filteredWords;
+    List<string>? _filteredWords;
 
     int guessLines = 1;
 
@@ -23,28 +23,29 @@
 
     protected override void OnInitialized()
     {
-        _filteredWords = _possibleWords.Take(20).ToList();
-        _guessService.OnChange += FilterWordList;
+        _possibleWords.Shuffle();
+        _filteredWords = _possibleWords.ToList();
+        GuessService.OnChange += FilterWordList;
     }
 
     public void Dispose()
     {
-        _guessService.OnChange -= FilterWordList;
+        GuessService.OnChange -= FilterWordList;
     }
 
-    public void FilterWordList()
+    private void FilterWordList()
     {
         _filteredWords = new List<string>();
 
         // check those that have known positions and then later filter those
-        if (_guessService.HasPerfectMatch)
+        if (GuessService.HasPerfectMatch)
         {
             // Use predicate inside Where to avoid repetitive checking
             _filteredWords = _possibleWords.Where(word =>
             {
-                return _guessService.guesses
-                    .Where(x => x.state == GuessService.LetterState.Right)
-                    .All(guess => HasCharAtMatchingPosition(word, guess.value, guess.position));
+                return GuessService.Guesses
+                    .Where(x => x.State == Letter.LetterState.Right)
+                    .All(guess => HasCharAtMatchingPosition(word, guess.Value, guess.Position));
             }).ToList();
         }
         else 
@@ -53,24 +54,24 @@
         }
 
         // now filter out the noise
-        if (_guessService.HasWronguns)
+        if (GuessService.HasWronguns)
         {
             _filteredWords.RemoveAll(word =>
             {
-                return _guessService.guesses
-                    .Where(x => x.state == GuessService.LetterState.Wrong)
-                    .Select(x => x.value)
+                return GuessService.Guesses
+                    .Where(x => x.State == Letter.LetterState.Wrong)
+                    .Select(x => x.Value)
                     .Any(wrong => word.Contains(wrong));
             });
         }
 
-        if (_guessService.HasImperfections)
+        if (GuessService.HasImperfections)
         {
             _filteredWords.RemoveAll(word => 
             {
-                return _guessService.guesses
-                    .Where(x => x.state == GuessService.LetterState.RightWrong)
-                    .Any(other => !word.Contains(other.value) || HasCharAtMatchingPosition(word, other.value, other.position));
+                return GuessService.Guesses
+                    .Where(x => x.State == Letter.LetterState.RightWrong)
+                    .Any(other => !word.Contains(other.Value) || HasCharAtMatchingPosition(word, other.Value, other.Position));
             });
         }
 
@@ -103,6 +104,7 @@
     </div>
 
     <div class="word-list">
+        <p>(@_filteredWords.Count possible solutions)</p>
         <ol>
             @foreach (var word in _filteredWords)
             {

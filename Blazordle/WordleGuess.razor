@@ -1,113 +1,59 @@
 @using Microsoft.AspNetCore.Components.Forms
-@inject GuessService _guessService;
+@inject GuessService GuessService;
 
 @code {
 
+    private List<Letter> Letters { get; } =
+    [
+        new Letter(1),
+        new Letter(2),
+        new Letter(3),
+        new Letter(4),
+        new Letter(5)
+    ];
 
-    private GuessService.LetterState letter1State = GuessService.LetterState.None;
-    private GuessService.LetterState letter2State = GuessService.LetterState.None;
-    private GuessService.LetterState letter3State = GuessService.LetterState.None;
-    private GuessService.LetterState letter4State = GuessService.LetterState.None;
-    private GuessService.LetterState letter5State = GuessService.LetterState.None;
-
-    private InputText? letter1;
-    private InputText? letter2;
-    private InputText? letter3;
-    private InputText? letter4;
-    private InputText? letter5;
-
-    private string letter1Value;
-    private string letter2Value;
-    private string letter3Value;
-    private string letter4Value;
-    private string letter5Value;
-
-    private void LetterEntered(InputText which)
+    private async Task LetterEntered(Letter letter)
     {
-        switch ((which.AdditionalAttributes.First(x => x.Key == "name").Value))
+        if (letter.Position != 5)
         {
-            case "letter1":
-                letter2.Element.Value.FocusAsync();
-                break;
-            case "letter2":
-                letter3.Element.Value.FocusAsync();
-                break;
-            case "letter3":
-                letter4.Element.Value.FocusAsync();
-                break;
-            case "letter4":
-                letter5.Element.Value.FocusAsync();
-                break;
-            case "letter5":
-                break;
+            var next = Letters.First(x => x.Position == letter.Position + 1);
+            if (next.Input.Element != null)
+            {
+                await next.Input.Element.Value.FocusAsync();
+            }
         }
     }
 
-    private void LetterClicked(InputText which)
+    private void LetterClicked(Letter letter)
     {
-        switch ((which.AdditionalAttributes.First(x => x.Key == "name").Value))
-        {
-            case "letter1":
-                if (string.IsNullOrEmpty(letter1Value)) break;
-                letter1State = SetState(letter1State);
-                _guessService.AddUpdateGuess(1, letter1Value, letter1State);
-                break;
-            case "letter2":
-                if (string.IsNullOrEmpty(letter2Value)) break;
-                letter2State = SetState(letter2State);
-                _guessService.AddUpdateGuess(2, letter2Value, letter2State);
-                break;
-            case "letter3":
-                if (string.IsNullOrEmpty(letter3Value)) break;
-                letter3State = SetState(letter3State);
-                _guessService.AddUpdateGuess(3, letter3Value, letter3State);
-                break;
-            case "letter4":
-                if (string.IsNullOrEmpty(letter4Value)) break;
-                letter4State = SetState(letter4State);
-                _guessService.AddUpdateGuess(4, letter4Value, letter4State);
-                break;
-            case "letter5":
-                if (string.IsNullOrEmpty(letter5Value)) break;
-                letter5State = SetState(letter5State);
-                _guessService.AddUpdateGuess(5, letter5Value, letter5State);
-                break;
-        }
+        // janky hack to avoid that initial focus when nothing's been entered yet
+        if (string.IsNullOrEmpty(letter.Value)) return;
+        letter.SetState();
+        
+        // tell the parent page
+        GuessService.AddUpdateGuess(letter);
     }
 
-    private GuessService.LetterState SetState(GuessService.LetterState currentState)
-    {
-        return currentState switch
-        {
-            GuessService.LetterState.None => GuessService.LetterState.Right,
-            GuessService.LetterState.Right => GuessService.LetterState.RightWrong,
-            GuessService.LetterState.RightWrong => GuessService.LetterState.Wrong,
-            _ => GuessService.LetterState.None
-            };
-    }
+    private const string InputNoneStyle = "background-color: white; color: black;";
+    private const string InputCorrectStyle = "background-color: green; color: white;";
+    private const string InputRightLetterWrongPlaceStyle = "background-color: orange; color; white;";
+    private const string InputWrongStyle = "background-color: grey; color; white;";
 
-        private const string InputNoneStyle = "background-color: white; color: black;";
-        private const string InputCorrectStyle = "background-color: green; color: white;";
-        private const string InputRightLetterWrongPlaceStyle = "background-color: orange; color; white;";
-        private const string InputWrongStyle = "background-color: grey; color; white;";
-
-    private static string GetStyleForState(GuessService.LetterState letterState)
+    private static string GetStyleForState(Letter.LetterState letterState)
     {
         return letterState switch
         {
-            GuessService.LetterState.Right => InputCorrectStyle,
-            GuessService.LetterState.RightWrong => InputRightLetterWrongPlaceStyle,
-            GuessService.LetterState.Wrong => InputWrongStyle,
+            Letter.LetterState.Right => InputCorrectStyle,
+            Letter.LetterState.RightWrong => InputRightLetterWrongPlaceStyle,
+            Letter.LetterState.Wrong => InputWrongStyle,
             _ => InputNoneStyle
-            };
+        };
     }
-
 }
 
 <div class="wordle-row">
-    <InputText maxlength="1" class="wordle-box" @ref="letter1" name="letter1" @bind-Value="letter1Value" @oninput="(args) => LetterEntered(letter1)" @onclick="() => LetterClicked(letter1)" style="@GetStyleForState(letter1State)"/>
-    <InputText maxlength="1" class="wordle-box" @ref="letter2" name="letter2" @bind-Value="letter2Value" @oninput="(args) => LetterEntered(letter2)" @onclick="() => LetterClicked(letter2)" style="@GetStyleForState(letter2State)"/>
-    <InputText maxlength="1" class="wordle-box" @ref="letter3" name="letter3" @bind-Value="letter3Value" @oninput="(args) => LetterEntered(letter3)" @onclick="() => LetterClicked(letter3)" style="@GetStyleForState(letter3State)"/>
-    <InputText maxlength="1" class="wordle-box" @ref="letter4" name="letter4" @bind-Value="letter4Value" @oninput="(args) => LetterEntered(letter4)" @onclick="() => LetterClicked(letter4)" style="@GetStyleForState(letter4State)"/>
-    <InputText maxlength="1" class="wordle-box" @ref="letter5" name="letter5" @bind-Value="letter5Value" @oninput="(args) => LetterEntered(letter5)" @onclick="() => LetterClicked(letter5)" style="@GetStyleForState(letter5State)"/>
+    @foreach (var letter in Letters)
+    {
+        <InputText maxlength="1" class="wordle-box" @key="letter" @ref="letter.Input" name="@letter.Name" @bind-Value="letter.Value" @oninput="_ => LetterEntered(letter)" @onclick="() => LetterClicked(letter)" style="@GetStyleForState(letter.State)"/>
+    }
 </div>
