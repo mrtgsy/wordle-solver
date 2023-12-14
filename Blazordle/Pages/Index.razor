@@ -12,7 +12,8 @@
 
     private void Reset()
     {
-        guessLines = 1;
+        guessLines = 0;
+        GuessService.Guesses = [];
         _filteredWords = _possibleWords.ToList();
     }
 
@@ -85,14 +86,14 @@
 }
 
 <h1>Blazordle - a Wordle solver</h1>
-
+<p>(<a href="https://matt-thornton.net/tech/blazordle-a-wordle-solver/">Blog post & source code</a>)</p>
+<hr />
 <p>There are @_possibleWords.Length words in the list.</p>
-<p>To start, enter a 5-letter guess and its hints.</p>
+<p>To start, head to [Wordle](https://www.nytimes.com/games/wordle/) and enter your starting 5-letter guess. Come back here, and enter the same and the hints it gave you, by clicking each letter to set the state.</p>
 
 <div class="container">
     <div class="wordle-board">
-        <!-- Each .wordle-row represents a row for guesses -->
-
+        
         @for (int i = 1; i <= guessLines; i++)
         {
             <WordleGuess></WordleGuess>
@@ -113,3 +114,6 @@
         </ol>
     </div>
 </div>
+
+<hr />
+Another pointless thing by <a href="https://matt-thornton.net">matt</a>
