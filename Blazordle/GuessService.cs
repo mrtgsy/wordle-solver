@@ -2,9 +2,7 @@ namespace Blazordle;
 
 public class GuessService
 {
-   
     public List<Letter> Guesses = [];
-
     public bool HasPerfectMatch
     {
         get
