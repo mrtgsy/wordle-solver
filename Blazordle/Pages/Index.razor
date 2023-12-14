@@ -5,9 +5,16 @@
 
 @code
 {
-    readonly string[] _possibleWords = File.ReadAllLines("wordlist.txt");
-    List<string>? _filteredWords;
+    readonly Word[] _possibleWords = GetWordList("wordlist.txt"); 
+    List<Word>? _filteredWords;
 
+    private static Word[] GetWordList(string filename)
+    {
+        var words = File.ReadAllLines(filename).ToList();
+        var frequencyAnalyser = new LetterFrequencyAnalyser(words);
+        return words.Select(word => new Word() { Value = word, Weight = frequencyAnalyser.CalculateWordWeight(word) }).ToArray();
+    }
+    
     int guessLines = 1;
 
     private void Reset()
@@ -36,7 +43,7 @@
 
     private void FilterWordList()
     {
-        _filteredWords = new List<string>();
+        _filteredWords = new List<Word>();
 
         // check those that have known positions and then later filter those
         if (GuessService.HasPerfectMatch)
@@ -46,7 +53,7 @@
             {
                 return GuessService.Guesses
                     .Where(x => x.State == Letter.LetterState.Right)
-                    .All(guess => HasCharAtMatchingPosition(word, guess.Value, guess.Position));
+                    .All(guess => HasCharAtMatchingPosition(word.Value, guess.Value, guess.Position));
             }).ToList();
         }
         else 
@@ -62,7 +69,7 @@
                 return GuessService.Guesses
                     .Where(x => x.State == Letter.LetterState.Wrong)
                     .Select(x => x.Value)
-                    .Any(wrong => word.Contains(wrong));
+                    .Any(wrong => word.Value.Contains(wrong));
             });
         }
 
@@ -72,7 +79,7 @@
             {
                 return GuessService.Guesses
                     .Where(x => x.State == Letter.LetterState.RightWrong)
-                    .Any(other => !word.Contains(other.Value) || HasCharAtMatchingPosition(word, other.Value, other.Position));
+                    .Any(other => !word.Value.Contains(other.Value) || HasCharAtMatchingPosition(word.Value, other.Value, other.Position));
             });
         }
 
@@ -89,7 +96,8 @@
 <p>(<a href="https://matt-thornton.net/tech/blazordle-a-wordle-solver/">Blog post & source code</a>)</p>
 <hr />
 <p>There are @_possibleWords.Length words in the list.</p>
-<p>To start, head to [Wordle](https://www.nytimes.com/games/wordle/) and enter your starting 5-letter guess. Come back here, and enter the same and the hints it gave you, by clicking each letter to set the state.</p>
+<p>To start, head to <a href="https://www.nytimes.com/games/wordle/">Wordle</a> play today's game.</p>
+<p>Enter your starting 5-letter guess then come back here and enter the same and the hints it gave you, by clicking each letter to set the state.</p>
 
 <div class="container">
     <div class="wordle-board">
@@ -107,9 +115,9 @@
     <div class="word-list">
         <p>(@_filteredWords.Count possible solutions)</p>
         <ol>
-            @foreach (var word in _filteredWords)
+            @foreach (var word in _filteredWords.OrderByDescending(x=> x.Weight).Take(100))
             {
-                <li>@word</li>
+                <li>@word.Value (w: @word.Weight.ToString("F3"))</li>
             }
         </ol>
     </div>
